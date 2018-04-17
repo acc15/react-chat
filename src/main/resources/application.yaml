@@ -1,0 +1,12 @@
+spring:
+  jackson:
+    serialization:
+      WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS: false
+
+server:
+  port: 8443
+  ssl:
+    key-store: classpath:keystore.jks
+    key-store-password: pwd1
+    key-password: pwd1
+    key-alias: noname

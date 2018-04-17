@@ -1,0 +1,7 @@
+/target/
+/src/main/webapp/chat/build
+/src/main/webapp/chat/node_modules
+
+
+.idea/
+*.iml
