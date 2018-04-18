@@ -2,12 +2,16 @@ import React, {Component} from 'react';
 
 import './Chat.css';
 import moment from "moment";
-import {Link} from "react-router-dom";
+import {withCookies} from 'react-cookie';
+import {Link, Redirect} from "react-router-dom";
 
 class Chat extends Component {
 
     constructor(props) {
         super(props);
+
+        this.user = this.props.cookies.get("user");
+
         this.state = {
             msg: "",
             msgs: []
@@ -30,17 +34,20 @@ class Chat extends Component {
 
     onMsgSend = e => {
         e.preventDefault();
-        this.ws.send(JSON.stringify({ user: this.props.user, text: this.state.msg }));
+        this.ws.send(JSON.stringify({ user: this.user, text: this.state.msg }));
         this.setState({ msg: "" });
     };
 
     onMsgRecv = e => this.setState({ msgs: JSON.parse(e.data) });
 
     render() {
+        if (!this.user) {
+            return <Redirect to="/changeUser"/>
+        }
         return <div>
             <form onSubmit={this.onMsgSend}>
                 <div>
-                    Hi, {this.props.user} (<Link to="/login">change name</Link>)
+                    Hi, {this.user} (<Link to="/changeUser">change name</Link>)
                 </div>
                 <div>
                     { this.state.msgs.map(msg =>
@@ -60,4 +67,4 @@ class Chat extends Component {
     }
 }
 
-export default Chat;
+export default withCookies(Chat);
