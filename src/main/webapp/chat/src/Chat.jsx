@@ -50,7 +50,7 @@ class Chat extends Component {
         this.ws.onclose = e => {
             logClose(e);
             setTimeout(() => {
-                console.log("Connection was unexpectedly closed.. reconnecting");
+                console.log("Reconnecting...");
                 this.connectWebSocket();
             }, 1000)
         };
