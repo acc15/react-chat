@@ -58,7 +58,6 @@ public class ChatHandler extends TextWebSocketHandler {
     }
 
     private void broadcast(Message msg) {
-        logger.info("Broadcasting message...");
         sessions.forEach(s -> sendMessage(s, msg));
     }
 
