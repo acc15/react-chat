@@ -38,7 +38,11 @@ class Chat extends Component {
         this.setState({ msg: "" });
     };
 
-    onMsgRecv = e => this.setState({ msgs: this.state.msgs.concat(JSON.parse(e.data)) });
+    onMsgRecv = e => {
+        const msg = JSON.parse(e.data);
+        setTimeout(() => this.setState({msgs: this.state.msgs.filter(m => m.time > msg.time)}), 60000);
+        this.setState({ msgs: this.state.msgs.concat(msg) });
+    };
 
     render() {
         if (!this.user) {
