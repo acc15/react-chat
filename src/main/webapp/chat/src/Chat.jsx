@@ -40,7 +40,7 @@ class Chat extends Component {
 
     onMsgRecv = e => {
         const msg = JSON.parse(e.data);
-        setTimeout(() => this.setState({msgs: this.state.msgs.filter(m => m.time > msg.time)}), 60000);
+        setTimeout(() => this.setState(prevState => ({msgs: prevState.msgs.filter(m => m.id !== msg.id)})), 60000);
         this.setState({ msgs: this.state.msgs.concat(msg) });
     };
 
@@ -48,16 +48,18 @@ class Chat extends Component {
         if (!this.user) {
             return <Redirect to="/changeUser"/>
         }
+
         return <div>
             <form onSubmit={this.onMsgSend}>
                 <div>
                     Hi, {this.user} (<Link to="/changeUser">change name</Link>)
                 </div>
                 <div>
-                    { this.state.msgs.map(msg =>
-                        <div key={msg.time} className="msg">
-                            <span className="timestamp">{moment(msg.time).format('DD.MM.YYYY HH:mm:ss.SSS')}</span> <span className="user">{msg.user}</span> {msg.text}
-                        </div>
+                    {
+                        this.state.msgs.map(msg =>
+                            <div key={msg.time} className="msg">
+                                <span className="timestamp">{moment(msg.time).format('DD.MM.YYYY HH:mm:ss.SSS')}</span> <span className="user">{msg.user}</span> {msg.text}
+                            </div>
                         )
                     }
                 </div>

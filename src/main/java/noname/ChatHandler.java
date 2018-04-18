@@ -23,16 +23,17 @@ public class ChatHandler extends TextWebSocketHandler {
 
     private final List<WebSocketSession> sessions = new CopyOnWriteArrayList<>();
     private final ObjectMapper objectMapper;
+    private final MessageFactory messageFactory;
 
     @Autowired
-    public ChatHandler(ObjectMapper objectMapper) {
+    public ChatHandler(ObjectMapper objectMapper, MessageFactory messageFactory) {
         this.objectMapper = objectMapper;
+        this.messageFactory = messageFactory;
     }
 
     @Override
     public void handleTextMessage(WebSocketSession session, TextMessage message) {
-        Message msg = parseMessage(message.getPayload());
-        msg.setTime(Instant.now());
+        Message msg = messageFactory.initMessage(parseMessage(message.getPayload()));
         logger.debug("Received message from {} (remote {}) at {}", msg.getUser(), session.getRemoteAddress(), msg.getTime());
         broadcast(msg);
     }

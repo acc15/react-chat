@@ -8,12 +8,22 @@ import java.time.Instant;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Message {
 
+    private long id;
+
     private String user;
 
     @JsonFormat(shape = JsonFormat.Shape.NUMBER_INT)
     private Instant time;
 
     private String text;
+
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
+    }
 
     public String getUser() {
         return user;
