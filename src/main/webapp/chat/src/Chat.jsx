@@ -5,6 +5,10 @@ import {withCookies} from 'react-cookie';
 import {Link, Redirect} from "react-router-dom";
 import Message from "./Message";
 
+function logClose(status) {
+    console.log(`Connection closed: {code: ${status.code}, reason: ${status.reason}. wasClean: ${status.wasClean}}`);
+}
+
 class Chat extends Component {
 
     constructor(props) {
@@ -20,15 +24,17 @@ class Chat extends Component {
     }
 
     componentDidMount() {
-        this.connectWebSocket()
+        this.connectWebSocket();
     }
 
     componentWillUnmount() {
         if (this.pingIntervalId) {
             clearInterval(this.pingIntervalId);
         }
-        this.ws.onclose = null;
-        this.ws.close();
+        if (this.ws) {
+            this.ws.onclose = logClose;
+            this.ws.close();
+        }
     }
 
     connectWebSocket() {
@@ -38,9 +44,11 @@ class Chat extends Component {
         this.ws = new WebSocket(this.url);
         this.ws.onmessage = this.onMsgRecv;
         this.ws.onopen = () => {
+            console.log("Connection opened...");
             this.pingIntervalId = setInterval(() => this.sendPing(), 120000);
         };
-        this.ws.onclose = () => {
+        this.ws.onclose = e => {
+            logClose(e);
             setTimeout(() => {
                 console.log("Connection was unexpectedly closed.. reconnecting");
                 this.connectWebSocket();
@@ -60,7 +68,7 @@ class Chat extends Component {
 
     onMsgChange = e => this.setState({ msg: e.target.value });
 
-    onMsgSend = e => {
+    onMsgPost = e => {
         e.preventDefault();
         this.sendMessage({ type: "POST", text: this.state.msg});
         this.setState({ msg: "" });
@@ -91,7 +99,7 @@ class Chat extends Component {
         }
 
         return <div>
-            <form onSubmit={this.onMsgSend}>
+            <form onSubmit={this.onMsgPost}>
                 <div>Hi, {this.user} (<Link to="/changeUser">change name</Link>)</div>
                 <div>{ this.state.msgs.map(msg => <Message key={msg.time} msg={msg}/>) }</div>
                 <div>
