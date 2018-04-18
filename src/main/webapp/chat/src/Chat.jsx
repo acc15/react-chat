@@ -88,7 +88,7 @@ class Chat extends Component {
                 break;
 
             default:
-                console.log(`Unknown frame received from server: ${e.data}`);
+                console.log(`Unknown frame received: ${e.data}`);
                 break;
         }
     };
