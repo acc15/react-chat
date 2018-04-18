@@ -14,8 +14,8 @@ class Chat extends Component {
     constructor(props) {
         super(props);
 
-        this.user = this.props.cookies.get("user");
-        this.url = `${window.location.protocol.indexOf("https") >= 0 ? "wss": "ws"}://${window.location.host}/api/chat?user=${this.user}`;
+        const proto = window.location.protocol.indexOf("https") >= 0 ? "wss": "ws";
+        this.url = `${proto}://${window.location.host}/api/chat?user=${this.props.user}`;
 
         this.state = {
             msg: "",
@@ -31,16 +31,11 @@ class Chat extends Component {
         if (this.pingIntervalId) {
             clearInterval(this.pingIntervalId);
         }
-        if (this.ws) {
-            this.ws.onclose = logClose;
-            this.ws.close();
-        }
+        this.ws.onclose = logClose;
+        this.ws.close();
     }
 
     connectWebSocket() {
-        if (!this.user) {
-            return;
-        }
         this.ws = new WebSocket(this.url);
         this.ws.onmessage = this.onMsgRecv;
         this.ws.onopen = () => {
@@ -94,17 +89,12 @@ class Chat extends Component {
     };
 
     render() {
-        if (!this.user) {
-            return <Redirect to="/changeUser"/>
-        }
-
         return <div>
             <form onSubmit={this.onMsgPost}>
-                <div>Hi, {this.user} (<Link to="/changeUser">change name</Link>)</div>
+                <div>Hi, {this.props.user} (<Link to="/changeUser">change name</Link>)</div>
                 <div>{ this.state.msgs.map(msg => <Message key={msg.time} msg={msg}/>) }</div>
                 <div>
-                    <label htmlFor="msg">Message: </label>
-                    <input id="msg" type="text" onChange={this.onMsgChange} value={this.state.msg}/>
+                    <input id="msg" type="text" onChange={this.onMsgChange} value={this.state.msg} placeholder="Type your message here"/>
                     <button type="submit">Send</button>
                 </div>
             </form>
@@ -112,4 +102,9 @@ class Chat extends Component {
     }
 }
 
-export default withCookies(Chat);
+const ChatEntry = ({ cookies }) => {
+    const user = cookies.get("user");
+    return user ? <Chat user={user}/> : <Redirect to="/changeUser"/>;
+};
+
+export default withCookies(ChatEntry);
