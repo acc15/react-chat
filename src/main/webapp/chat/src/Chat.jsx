@@ -19,7 +19,7 @@ class Chat extends Component {
     }
 
     componentDidMount() {
-        const url = (window.location.protocol.indexOf("https") >= 0 ? "wss": "ws") + "://" + window.location.host + "/api/chat";
+        const url = `${window.location.protocol.indexOf("https") >= 0 ? "wss": "ws"}://${window.location.host}/api/chat?user=${this.user}`;
         this.ws = new WebSocket(url);
         this.ws.onopen = () => console.log("ws open");
         this.ws.onclose = () => console.log("ws close");
@@ -38,7 +38,7 @@ class Chat extends Component {
         this.setState({ msg: "" });
     };
 
-    onMsgRecv = e => this.setState({ msgs: JSON.parse(e.data) });
+    onMsgRecv = e => this.setState({ msgs: this.state.msgs.concat(JSON.parse(e.data)) });
 
     render() {
         if (!this.user) {

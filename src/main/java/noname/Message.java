@@ -1,9 +1,11 @@
 package noname;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonInclude;
 
 import java.time.Instant;
 
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class Message {
 
     private String user;
@@ -35,5 +37,12 @@ public class Message {
 
     public void setText(String text) {
         this.text = text;
+    }
+
+    public static Message notification(Instant time, String text) {
+        Message m = new Message();
+        m.setTime(time);
+        m.setText(text);
+        return m;
     }
 }
