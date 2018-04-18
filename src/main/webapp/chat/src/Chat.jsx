@@ -24,21 +24,23 @@ class Chat extends Component {
     }
 
     componentWillUnmount() {
-        this.shutdown = true;
+        if (this.pingIntervalId) {
+            clearInterval(this.pingIntervalId);
+        }
+        this.ws.onclose = null;
         this.ws.close();
     }
 
     connectWebSocket() {
+        if (!this.user) {
+            return;
+        }
         this.ws = new WebSocket(this.url);
         this.ws.onmessage = this.onMsgRecv;
         this.ws.onopen = () => {
             this.pingIntervalId = setInterval(() => this.sendPing(), 120000);
         };
         this.ws.onclose = () => {
-            clearInterval(this.pingIntervalId);
-            if (this.shutdown) {
-                return;
-            }
             setTimeout(() => {
                 console.log("Connection was unexpectedly closed.. reconnecting");
                 this.connectWebSocket();
