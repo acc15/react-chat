@@ -1,9 +1,9 @@
 import React, {Component} from 'react';
 
 import './Chat.css';
-import moment from "moment";
 import {withCookies} from 'react-cookie';
 import {Link, Redirect} from "react-router-dom";
+import Message from "./Message";
 
 class Chat extends Component {
 
@@ -51,18 +51,8 @@ class Chat extends Component {
 
         return <div>
             <form onSubmit={this.onMsgSend}>
-                <div>
-                    Hi, {this.user} (<Link to="/changeUser">change name</Link>)
-                </div>
-                <div>
-                    {
-                        this.state.msgs.map(msg =>
-                            <div key={msg.time} className="msg">
-                                <span className="timestamp">{moment(msg.time).format('DD.MM.YYYY HH:mm:ss.SSS')}</span> <span className="user">{msg.user}</span> {msg.text}
-                            </div>
-                        )
-                    }
-                </div>
+                <div>Hi, {this.user} (<Link to="/changeUser">change name</Link>)</div>
+                <div>{ this.state.msgs.map(msg => <Message key={msg.time} msg={msg}/>) }</div>
                 <div>
                     <label htmlFor="msg">Message: </label>
                     <input id="msg" type="text" onChange={this.onMsgChange} value={this.state.msg}/>
