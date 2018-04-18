@@ -11,6 +11,7 @@ class Chat extends Component {
         super(props);
 
         this.user = this.props.cookies.get("user");
+        this.url = `${window.location.protocol.indexOf("https") >= 0 ? "wss": "ws"}://${window.location.host}/api/chat?user=${this.user}`;
 
         this.state = {
             msg: "",
@@ -19,29 +20,67 @@ class Chat extends Component {
     }
 
     componentDidMount() {
-        const url = `${window.location.protocol.indexOf("https") >= 0 ? "wss": "ws"}://${window.location.host}/api/chat?user=${this.user}`;
-        this.ws = new WebSocket(url);
-        this.ws.onopen = () => console.log("ws open");
-        this.ws.onclose = () => console.log("ws close");
-        this.ws.onmessage = this.onMsgRecv;
+        this.connectWebSocket()
     }
 
     componentWillUnmount() {
+        this.shutdown = true;
         this.ws.close();
+    }
+
+    connectWebSocket() {
+        this.ws = new WebSocket(this.url);
+        this.ws.onmessage = this.onMsgRecv;
+        this.ws.onopen = () => {
+            this.pingIntervalId = setInterval(() => this.sendPing(), 120000);
+        };
+        this.ws.onclose = () => {
+            clearInterval(this.pingIntervalId);
+            if (this.shutdown) {
+                return;
+            }
+            setTimeout(() => {
+                console.log("Connection was unexpectedly closed.. reconnecting");
+                this.connectWebSocket();
+            }, 1000)
+        };
+    }
+
+    sendPing() {
+        this.sendMessage({ type: "PING" });
+    }
+
+    sendMessage(data) {
+        const json = JSON.stringify(data);
+        console.log(`Sending frame: ${json}`);
+        this.ws.send(json);
     }
 
     onMsgChange = e => this.setState({ msg: e.target.value });
 
     onMsgSend = e => {
         e.preventDefault();
-        this.ws.send(JSON.stringify({ user: this.user, text: this.state.msg }));
+        this.sendMessage({ type: "POST", text: this.state.msg});
         this.setState({ msg: "" });
     };
 
     onMsgRecv = e => {
+        console.log(`Received frame: ${e.data}`);
         const msg = JSON.parse(e.data);
-        setTimeout(() => this.setState(prevState => ({msgs: prevState.msgs.filter(m => m.id !== msg.id)})), 60000);
-        this.setState({ msgs: this.state.msgs.concat(msg) });
+        switch (msg.type) {
+            case "MSG":
+            case "NOTIFY":
+                this.setState(state => ({msgs: [...state.msgs, msg]}));
+                setTimeout(() => this.setState(prevState => ({msgs: prevState.msgs.filter(m => m.id !== msg.id)})), 60000);
+                break;
+
+            case "PONG":
+                break;
+
+            default:
+                console.log(`Unknown frame received from server: ${e.data}`);
+                break;
+        }
     };
 
     render() {

@@ -1,12 +1,16 @@
-package noname;
+package noname.proto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonTypeName;
 
 import java.time.Instant;
 
-@JsonInclude(JsonInclude.Include.NON_NULL)
-public class Message {
+@JsonTypeName("MSG")
+public class Message extends Frame {
+
+    public Message() {
+        super(FrameType.MSG);
+    }
 
     private long id;
 
@@ -49,10 +53,5 @@ public class Message {
         this.text = text;
     }
 
-    public static Message notification(Instant time, String text) {
-        Message m = new Message();
-        m.setTime(time);
-        m.setText(text);
-        return m;
-    }
+
 }

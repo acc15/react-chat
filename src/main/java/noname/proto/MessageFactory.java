@@ -1,4 +1,4 @@
-package noname;
+package noname.proto;
 
 import org.springframework.stereotype.Service;
 
@@ -10,26 +10,21 @@ public class MessageFactory {
 
     private final AtomicLong idSeq = new AtomicLong();
 
-    public Message createNotification(String text) {
-        var msg = createMessage();
+    public Notification createNotification(String text) {
+        var msg = new Notification();
+        msg.setId(idSeq.incrementAndGet());
+        msg.setTime(Instant.now());
         msg.setText(text);
         return msg;
     }
 
     public Message createMessage(String user, String text) {
-        var msg = createNotification(text);
-        msg.setUser(user);
-        return msg;
-    }
-
-    public Message initMessage(Message msg) {
+        var msg = new Message();
         msg.setId(idSeq.incrementAndGet());
         msg.setTime(Instant.now());
+        msg.setUser(user);
+        msg.setText(text);
         return msg;
-    }
-
-    public Message createMessage() {
-        return initMessage(new Message());
     }
 
 }
