@@ -81,7 +81,7 @@ class Chat extends Component {
             case "MSG":
             case "NOTIFY":
                 this.setState(state => ({msgs: [...state.msgs, msg]}));
-                setTimeout(() => this.setState(prevState => ({msgs: prevState.msgs.filter(m => m.id !== msg.id)})), 60000);
+                setTimeout(() => this.setState(state => ({msgs: state.msgs.filter(m => m.id !== msg.id)})), 60000);
                 break;
 
             case "PONG":
