@@ -62,6 +62,8 @@ class Chat extends React.Component {
         this.ws.send(json);
     }
 
+    onNotificationChange = e => this.props.notifications.enabled = e.target.checked;
+
     onMsgPost = msg => this.sendMessage({type: "POST", text: msg});
 
     onMsgRecv = e => {
@@ -94,6 +96,13 @@ class Chat extends React.Component {
     render() {
         return <div>
             <div>Hi, {this.props.user} (<Link to="/changeUser">change name</Link>)</div>
+            <div>
+                <input id="notifications"
+                        checked={this.props.notifications.enabled}
+                        onChange={this.onNotificationChange}
+                        type="checkbox"/>
+                <label htmlFor="notifications">Notifications</label>
+            </div>
             <div>{ this.state.msgs.map(msg => <Message key={msg.id} msg={msg}/>) }</div>
             <div>
                 <MsgInput onPost={this.onMsgPost}/>
