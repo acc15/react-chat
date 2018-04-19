@@ -19,6 +19,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.function.Function;
 
 @Component
 public class ChatHandler extends TextWebSocketHandler {
@@ -47,7 +48,7 @@ public class ChatHandler extends TextWebSocketHandler {
                 break;
 
             case POST:
-                broadcast(messageFactory.createMessage(getUser(session), ((Post)frame).getText()));
+                broadcast(s -> messageFactory.createMessage(getUser(session), ((Post)frame).getText(), s != session));
                 break;
         }
     }
@@ -71,6 +72,10 @@ public class ChatHandler extends TextWebSocketHandler {
 
         broadcast(messageFactory.createNotification(user + " joined"));
         sessions.add(session);
+    }
+
+    private void broadcast(Function<WebSocketSession, Frame> frameGen) {
+        sessions.forEach(s -> sendFrame(s, frameGen.apply(s)));
     }
 
     private void broadcast(Frame frame) {

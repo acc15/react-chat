@@ -1,16 +1,17 @@
-import React, {Component} from 'react';
+import React from 'react';
 
 import './Chat.css';
 import {withCookies} from 'react-cookie';
 import {Link, Redirect} from "react-router-dom";
 import Message from "./Msg";
 import MsgInput from "./MsgInput";
+import withNotifications from "./Notifications";
 
 function logClose(status) {
     console.log(`Connection closed: {code: ${status.code}, reason: ${status.reason}. wasClean: ${status.wasClean}}`);
 }
 
-class Chat extends Component {
+class Chat extends React.Component {
 
     constructor(props) {
         super(props);
@@ -68,8 +69,16 @@ class Chat extends Component {
         const msg = JSON.parse(e.data);
         switch (msg.type) {
             case "MSG":
-            case "NOTIFY":
                 this.setState(state => ({msgs: [...state.msgs, msg]}));
+                if (msg.notify) {
+                    this.props.notifications.notify({
+                        title: msg.user || msg.text,
+                        body: msg.user ? msg.text : undefined
+                        /*,
+                        icon: "https://d30y9cdsu7xlg0.cloudfront.net/png/84093-200.png"*/
+                    });
+                }
+
                 setTimeout(() => this.setState(state => ({msgs: state.msgs.filter(m => m.id !== msg.id)})), 60000);
                 break;
 
@@ -93,9 +102,10 @@ class Chat extends Component {
     }
 }
 
-const ChatEntry = ({ cookies }) => {
-    const user = cookies.get("user");
-    return user ? <Chat user={user}/> : <Redirect to="/changeUser"/>;
-};
+const ChatWithNotifications = withNotifications(Chat);
 
-export default withCookies(ChatEntry);
+
+export default withCookies(({ cookies }) => {
+    const user = cookies.get("user");
+    return user ? <ChatWithNotifications user={user}/> : <Redirect to="/changeUser"/>;
+});

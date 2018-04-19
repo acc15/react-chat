@@ -23,4 +23,6 @@ public class Message extends Frame {
 
     private String text;
 
+    boolean notify;
+
 }
