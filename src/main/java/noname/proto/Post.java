@@ -1,7 +1,9 @@
 package noname.proto;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
+import lombok.Data;
 
+@Data
 @JsonTypeName("POST")
 public class Post extends Frame {
 
@@ -11,11 +13,4 @@ public class Post extends Frame {
         super(FrameType.POST);
     }
 
-    public String getText() {
-        return text;
-    }
-
-    public void setText(String text) {
-        this.text = text;
-    }
 }

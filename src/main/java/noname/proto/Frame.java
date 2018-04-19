@@ -2,6 +2,7 @@ package noname.proto;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import lombok.Data;
 
 @JsonTypeInfo(property = "type", use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.EXISTING_PROPERTY)
 @JsonSubTypes({
@@ -11,6 +12,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
     @JsonSubTypes.Type(Post.class),
     @JsonSubTypes.Type(Notification.class)
 })
+@Data
 public abstract class Frame {
 
     private FrameType type;
@@ -19,11 +21,4 @@ public abstract class Frame {
         this.type = type;
     }
 
-    public FrameType getType() {
-        return type;
-    }
-
-    public void setType(FrameType type) {
-        this.type = type;
-    }
 }

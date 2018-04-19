@@ -1,9 +1,11 @@
 package noname.proto;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
+import lombok.Data;
 
 import java.time.Instant;
 
+@Data
 @JsonTypeName("NOTIFY")
 public class Notification extends Frame {
 
@@ -15,27 +17,4 @@ public class Notification extends Frame {
         super(FrameType.NOTIFY);
     }
 
-    public long getId() {
-        return id;
-    }
-
-    public void setId(long id) {
-        this.id = id;
-    }
-
-    public Instant getTime() {
-        return time;
-    }
-
-    public void setTime(Instant time) {
-        this.time = time;
-    }
-
-    public String getText() {
-        return text;
-    }
-
-    public void setText(String text) {
-        this.text = text;
-    }
 }

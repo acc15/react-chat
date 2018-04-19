@@ -11,7 +11,7 @@ public class MessageFactory {
     private final AtomicLong idSeq = new AtomicLong();
 
     public Notification createNotification(String text) {
-        var msg = new Notification();
+        Notification msg = new Notification();
         msg.setId(idSeq.incrementAndGet());
         msg.setTime(Instant.now());
         msg.setText(text);
@@ -19,7 +19,7 @@ public class MessageFactory {
     }
 
     public Message createMessage(String user, String text) {
-        var msg = new Message();
+        Message msg = new Message();
         msg.setId(idSeq.incrementAndGet());
         msg.setTime(Instant.now());
         msg.setUser(user);

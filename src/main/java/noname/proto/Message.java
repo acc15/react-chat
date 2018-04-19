@@ -2,9 +2,11 @@ package noname.proto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonTypeName;
+import lombok.Data;
 
 import java.time.Instant;
 
+@Data
 @JsonTypeName("MSG")
 public class Message extends Frame {
 
@@ -20,38 +22,5 @@ public class Message extends Frame {
     private Instant time;
 
     private String text;
-
-    public long getId() {
-        return id;
-    }
-
-    public void setId(long id) {
-        this.id = id;
-    }
-
-    public String getUser() {
-        return user;
-    }
-
-    public void setUser(String user) {
-        this.user = user;
-    }
-
-    public Instant getTime() {
-        return time;
-    }
-
-    public void setTime(Instant time) {
-        this.time = time;
-    }
-
-    public String getText() {
-        return text;
-    }
-
-    public void setText(String text) {
-        this.text = text;
-    }
-
 
 }

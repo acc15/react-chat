@@ -13,6 +13,7 @@ import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
+import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.IOException;
@@ -36,10 +37,10 @@ public class ChatHandler extends TextWebSocketHandler {
 
     @Override
     public void handleTextMessage(WebSocketSession session, TextMessage message) {
-        var frameJson = message.getPayload();
+        String frameJson = message.getPayload();
         logger.info("Received frame from ({}): {}", session.getRemoteAddress(), frameJson);
 
-        var frame = parseFrame(message.getPayload());
+        Frame frame = parseFrame(message.getPayload());
         switch (frame.getType()) {
             case PING:
                 sendFrame(session, new Pong());
@@ -64,8 +65,8 @@ public class ChatHandler extends TextWebSocketHandler {
     public void afterConnectionEstablished(WebSocketSession session) {
         logger.info("Connection established {}", session.getRemoteAddress());
 
-        var uriComponents = UriComponentsBuilder.fromUri(session.getUri()).build();
-        var user = uriComponents.getQueryParams().getFirst("user");
+        UriComponents uriComponents = UriComponentsBuilder.fromUri(session.getUri()).build();
+        String user = uriComponents.getQueryParams().getFirst("user");
         session.getAttributes().put("user", user);
 
         broadcast(messageFactory.createNotification(user + " joined"));
@@ -82,7 +83,7 @@ public class ChatHandler extends TextWebSocketHandler {
 
     private void sendFrame(WebSocketSession session, Frame frame) {
         try {
-            var frameJson = objectMapper.writeValueAsString(frame);
+            String frameJson = objectMapper.writeValueAsString(frame);
             logger.info("Sending frame to {}: {}", session.getRemoteAddress(), frameJson);
             session.sendMessage(new TextMessage(frameJson));
         } catch (IOException e) {
