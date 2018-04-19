@@ -6,15 +6,17 @@ const withNotifications = (Delegate) => class NotificationsHOC extends React.Com
     constructor(props) {
         super(props);
 
+        this.supported = Boolean(window.Notification);
         this.state = {
-            enabled: true
+            enabled: true,
+            allowed: this.isNotificationsAllowed()
         };
 
         const self = this;
         class NotificationsAPI {
 
             get supported() {
-                return Boolean(window.Notification);
+                return self.supported;
             }
 
             get enabled() {
@@ -26,11 +28,15 @@ const withNotifications = (Delegate) => class NotificationsHOC extends React.Com
             }
 
             get allowed() {
-                return window.Notification.permission === "granted";
+                return self.state.allowed;
+            }
+
+            notSupportedOrAllowed() {
+                return !this.supported || !this.allowed;
             }
 
             requestPermissionIfDefault() {
-                if (!this.supported) {
+                if (!self.supported) {
                     return false;
                 }
                 switch (window.Notification.permission) {
@@ -69,8 +75,17 @@ const withNotifications = (Delegate) => class NotificationsHOC extends React.Com
 
     }
 
+    isNotificationsAllowed() {
+        return this.supported && window.Notification.permission === "granted";
+    }
+
     componentDidMount() {
         this.notifications.requestPermissionIfDefault();
+        this.permissionCheckerId = setInterval(() => this.setState({ allowed: this.isNotificationsAllowed() }), 1000);
+    }
+
+    componentWillUnmount() {
+        clearInterval(this.permissionCheckerId);
     }
 
     render() {

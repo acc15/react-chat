@@ -16,7 +16,7 @@ class Chat extends React.Component {
     constructor(props) {
         super(props);
 
-        const proto = window.location.protocol.indexOf("https") >= 0 ? "wss": "ws";
+        const proto = window.location.protocol.indexOf("https") >= 0 ? "wss" : "ws";
         this.url = `${proto}://${window.location.host}/api/chat?user=${this.props.user}`;
 
         this.state = {
@@ -53,7 +53,7 @@ class Chat extends React.Component {
     }
 
     sendPing() {
-        this.sendMessage({ type: "PING" });
+        this.sendMessage({type: "PING"});
     }
 
     sendMessage(data) {
@@ -94,16 +94,22 @@ class Chat extends React.Component {
     };
 
     render() {
+        const nt = this.props.notifications;
+
         return <div>
             <div>Hi, {this.props.user} (<Link to="/changeUser">change name</Link>)</div>
             <div>
                 <input id="notifications"
-                        checked={this.props.notifications.enabled}
-                        onChange={this.onNotificationChange}
-                        type="checkbox"/>
+                       checked={nt.enabled}
+                       onChange={this.onNotificationChange}
+                       disabled={nt.notSupportedOrAllowed()}
+                       type="checkbox"/>
                 <label htmlFor="notifications">Notifications</label>
+                { nt.notSupportedOrAllowed() && <span> (
+                    {!nt.supported ? "not supported by browser" : "not allowed by user"}
+                )</span> }
             </div>
-            <div>{ this.state.msgs.map(msg => <Message key={msg.id} msg={msg}/>) }</div>
+            <div>{this.state.msgs.map(msg => <Message key={msg.id} msg={msg}/>)}</div>
             <div>
                 <MsgInput onPost={this.onMsgPost}/>
             </div>
@@ -114,7 +120,7 @@ class Chat extends React.Component {
 const ChatWithNotifications = withNotifications(Chat);
 
 
-export default withCookies(({ cookies }) => {
+export default withCookies(({cookies}) => {
     const user = cookies.get("user");
     return user ? <ChatWithNotifications user={user}/> : <Redirect to="/changeUser"/>;
 });
