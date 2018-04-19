@@ -87,7 +87,7 @@ public class ChatHandler extends TextWebSocketHandler {
             logger.info("Sending frame to {}: {}", session.getRemoteAddress(), frameJson);
             session.sendMessage(new TextMessage(frameJson));
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
     }
 
