@@ -3,7 +3,8 @@ import React, {Component} from 'react';
 import './Chat.css';
 import {withCookies} from 'react-cookie';
 import {Link, Redirect} from "react-router-dom";
-import Message from "./Message";
+import Message from "./Msg";
+import MsgInput from "./MsgInput";
 
 function logClose(status) {
     console.log(`Connection closed: {code: ${status.code}, reason: ${status.reason}. wasClean: ${status.wasClean}}`);
@@ -18,7 +19,6 @@ class Chat extends Component {
         this.url = `${proto}://${window.location.host}/api/chat?user=${this.props.user}`;
 
         this.state = {
-            msg: "",
             msgs: []
         };
     }
@@ -61,13 +61,7 @@ class Chat extends Component {
         this.ws.send(json);
     }
 
-    onMsgChange = e => this.setState({ msg: e.target.value });
-
-    onMsgPost = e => {
-        e.preventDefault();
-        this.sendMessage({ type: "POST", text: this.state.msg});
-        this.setState({ msg: "" });
-    };
+    onMsgPost = msg => this.sendMessage({type: "POST", text: msg});
 
     onMsgRecv = e => {
         console.log(`Received frame: ${e.data}`);
@@ -90,14 +84,11 @@ class Chat extends Component {
 
     render() {
         return <div>
-            <form onSubmit={this.onMsgPost}>
-                <div>Hi, {this.props.user} (<Link to="/changeUser">change name</Link>)</div>
-                <div>{ this.state.msgs.map(msg => <Message key={msg.time} msg={msg}/>) }</div>
-                <div>
-                    <input id="msg" type="text" onChange={this.onMsgChange} value={this.state.msg} placeholder="Type your message here"/>
-                    <button type="submit">Send</button>
-                </div>
-            </form>
+            <div>Hi, {this.props.user} (<Link to="/changeUser">change name</Link>)</div>
+            <div>{ this.state.msgs.map(msg => <Message key={msg.id} msg={msg}/>) }</div>
+            <div>
+                <MsgInput onPost={this.onMsgPost}/>
+            </div>
         </div>;
     }
 }

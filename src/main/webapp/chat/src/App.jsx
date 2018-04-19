@@ -1,7 +1,7 @@
 import {BrowserRouter, Route, Switch} from 'react-router-dom';
 
 import React from "react";
-import Chat from "./Chat";
+import Chat from "./chat/Chat";
 import ChangeUser from "./ChangeUser";
 
 export default () => <BrowserRouter>
