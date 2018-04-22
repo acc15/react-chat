@@ -10,16 +10,16 @@ import java.util.UUID;
 public class MessageFactory {
 
 
-    public Join join(User user) {
-        return initBaseMsg(new Join(), user);
+    public Join join(UUID id, Instant time, User user) {
+        return initBaseMsg(new Join(), id, time, user);
     }
 
-    public Leave leave(User user) {
-        return initBaseMsg(new Leave(), user);
+    public Leave leave(UUID id, Instant time, User user) {
+        return initBaseMsg(new Leave(), id, time, user);
     }
 
-    public Message msg(User user, String text, boolean notify) {
-        Message m = initBaseMsg(new Message(), user);
+    public Message msg(UUID id, Instant time, User user, String text, boolean notify) {
+        Message m = initBaseMsg(new Message(), id, time, user);
         m.setText(text);
         m.setNotify(notify);
         return m;
@@ -35,9 +35,9 @@ public class MessageFactory {
         return i;
     }
 
-    private <T extends BaseMessage> T initBaseMsg(T baseMessage, User user) {
-        baseMessage.setId(UUID.randomUUID());
-        baseMessage.setTime(Instant.now());
+    private <T extends BaseMessage> T initBaseMsg(T baseMessage, UUID id, Instant time, User user) {
+        baseMessage.setId(id);
+        baseMessage.setTime(time);
         baseMessage.setUser(user);
         return baseMessage;
     }

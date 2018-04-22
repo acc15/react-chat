@@ -72,23 +72,19 @@ class Chat extends React.Component {
         const msg = JSON.parse(e.data);
         switch (msg.type) {
             case "INIT":
-                this.setState({ users: Chat.distinctSortedUsers(msg.users) });
+                this.setState({ users: msg.users });
                 break;
 
             case "JOIN":
-                this.join(msg);
+                this.userChange(msg, `${msg.user.name} joined`, users => users.concat(msg.user));
                 break;
 
             case "LEAVE":
-                this.leave(msg);
+                this.userChange(msg, `${msg.user.name} leave`, users => users.filter(u => u.id !== msg.user.id));
                 break;
 
             case "MSG":
-                this.setState(state => ({msgs: [...state.msgs, msg]}));
-                if (msg.notify) {
-                    this.notify(msg.user.name, msg.text);
-                }
-                this.removeMsgAfterTimeout(msg.id);
+                this.msg(msg);
                 break;
 
             case "PONG":
@@ -100,39 +96,32 @@ class Chat extends React.Component {
         }
     };
 
-    join(msg) {
-        const text = `${msg.user.name} joined`;
+    userChange(msg, text, modifier) {
         this.setState(state => ({
-            users: [...state.users, msg.user],
-            msgs: [...state.msgs, {...msg, text: text}] })
+            users: modifier(state.users),
+            msgs: [...state.msgs, {id: msg.id, time: msg.time, text: text}] })
         );
         this.notify(text);
         this.removeMsgAfterTimeout(msg.id);
     }
 
-    leave(msg) {
-        const text = `${msg.user.name} leave`;
-        this.setState(state => ({
-            users: state.users.filter(u => u.id !== msg.user.id),
-            msgs: [...state.msgs, {...msg, text: text}] })
-        );
-        this.notify(text);
+    msg(msg) {
+        this.setState(state => ({msgs: [...state.msgs, msg]}));
+        if (msg.notify) {
+            this.notify(msg.user.name, msg.text);
+        }
         this.removeMsgAfterTimeout(msg.id);
     }
+
 
     notify(title, body) {
         this.props.notifications.notify({ title: title, body: body });
     }
 
-    removeMsgAfterTimeout(id) {
-        setTimeout(() => this.setState(state => ({msgs: state.msgs.filter(m => m.id !== id)})), 60000);
-    }
+    onMsgRemove = id => this.setState(state => ({msgs: state.msgs.filter(m => m.id !== id)}));
 
-    static distinctSortedUsers(users) {
-        return Object.values(users.reduce((obj, u) => {
-            obj[u.id] = u;
-            return obj;
-        }, {})).sort((u1, u2) => u1.name.localeCompare(u2.name));
+    removeMsgAfterTimeout(id) {
+        setTimeout(() => this.onMsgRemove(id), 60000);
     }
 
     render() {
@@ -152,7 +141,7 @@ class Chat extends React.Component {
                     {!notifications.supported ? "not supported by browser" : "not allowed by user"}
                 )</span> }
             </div>
-            <div>{this.state.msgs.map(msg => <Message key={msg.id} user={user} msg={msg}/>)}</div>
+            <div>{this.state.msgs.map(msg => <Message key={msg.id} user={user} msg={msg} onRemove={this.onMsgRemove}/>)}</div>
             <div>
                 <MsgInput onPost={this.onMsgPost}/>
             </div>

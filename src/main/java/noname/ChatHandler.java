@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpCookie;
 import java.net.URLDecoder;
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -52,7 +53,10 @@ public class ChatHandler extends TextWebSocketHandler {
                 break;
 
             case POST:
-                broadcast(s -> messageFactory.msg(getUser(session), ((Post)frame).getText(), !getUser(s).getId().equals(getUser(session).getId())));
+                User u = getUser(session);
+                UUID id = UUID.randomUUID();
+                Instant time = Instant.now();
+                broadcast(s -> messageFactory.msg(id, time, u, ((Post)frame).getText(), !getUser(s).getId().equals(u.getId())));
                 break;
         }
     }
@@ -65,7 +69,7 @@ public class ChatHandler extends TextWebSocketHandler {
 
         User u = getUser(session);
         if (getUserSessions(u.getId()).isEmpty()) {
-            broadcast(messageFactory.leave(getUser(session)));
+            broadcast(messageFactory.leave(UUID.randomUUID(), Instant.now(), getUser(session)));
         }
     }
 
@@ -85,7 +89,7 @@ public class ChatHandler extends TextWebSocketHandler {
         session.getAttributes().put("user", user);
 
         if (getUserSessions(user.getId()).isEmpty()) {
-            broadcast(messageFactory.join(user));
+            broadcast(messageFactory.join(UUID.randomUUID(), Instant.now(), user));
         }
 
         sessions.add(session);
