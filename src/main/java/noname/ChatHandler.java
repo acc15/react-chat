@@ -5,6 +5,7 @@ import noname.proto.Frame;
 import noname.proto.MessageFactory;
 import noname.proto.Pong;
 import noname.proto.Post;
+import noname.proto.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,10 +14,11 @@ import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
-import org.springframework.web.util.UriComponents;
-import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.HttpCookie;
+import java.net.URLDecoder;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Function;
@@ -59,18 +61,25 @@ public class ChatHandler extends TextWebSocketHandler {
 
         sessions.remove(session);
 
-        broadcast(messageFactory.createNotification(getUser(session) + " leave"));
+        broadcast(messageFactory.createNotification(getUser(session).getName() + " leave"));
     }
 
     @Override
     public void afterConnectionEstablished(WebSocketSession session) {
         logger.info("Connection established {}", session.getRemoteAddress());
 
-        UriComponents uriComponents = UriComponentsBuilder.fromUri(session.getUri()).build();
-        String user = uriComponents.getQueryParams().getFirst("user");
+        User user = parseUserFromCookieOrNull(session);
+        if (user == null) {
+            try {
+                session.close(new CloseStatus(CloseStatus.NOT_ACCEPTABLE.getCode(), "Connections without 'user' cookie or with invalid 'user' cookie will be rejected"));
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+            return;
+        }
         session.getAttributes().put("user", user);
 
-        broadcast(messageFactory.createNotification(user + " joined"));
+        broadcast(messageFactory.createNotification(user.getName() + " joined"));
         sessions.add(session);
     }
 
@@ -82,8 +91,8 @@ public class ChatHandler extends TextWebSocketHandler {
         sessions.forEach(s -> sendFrame(s, frame));
     }
 
-    private static String getUser(WebSocketSession session) {
-        return session.getAttributes().get("user").toString();
+    private static User getUser(WebSocketSession session) {
+        return (User) session.getAttributes().get("user");
     }
 
     private void sendFrame(WebSocketSession session, Frame frame) {
@@ -102,6 +111,29 @@ public class ChatHandler extends TextWebSocketHandler {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private User parseUserFromCookieOrNull(WebSocketSession session) {
+        return session.getHandshakeHeaders().get("Cookie")
+            .stream()
+            .flatMap(v -> HttpCookie.parse(v).stream())
+            .filter(c -> "user".equals(c.getName()))
+            .map(c -> {
+                try {
+                    return URLDecoder.decode(c.getValue(), "utf-8");
+                } catch (UnsupportedEncodingException e) {
+                    throw new RuntimeException(e);
+                }
+            })
+            .map(v -> {
+                try {
+                    return (User) objectMapper.readerFor(User.class).readValue(v);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            })
+            .findAny()
+            .orElse(null);
     }
 
 }

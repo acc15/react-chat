@@ -3,23 +3,21 @@ package noname.proto;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
-import java.util.concurrent.atomic.AtomicLong;
+import java.util.UUID;
 
 @Service
 public class MessageFactory {
 
-    private final AtomicLong idSeq = new AtomicLong();
-
     public Message createNotification(String text) {
         Message msg = new Message();
-        msg.setId(idSeq.incrementAndGet());
+        msg.setId(UUID.randomUUID());
         msg.setTime(Instant.now());
         msg.setText(text);
         msg.setNotify(true);
         return msg;
     }
 
-    public Message createMessage(String user, String text, boolean notify) {
+    public Message createMessage(User user, String text, boolean notify) {
         Message msg = createNotification(text);
         msg.setUser(user);
         msg.setNotify(notify);

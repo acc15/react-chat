@@ -17,7 +17,7 @@ class Chat extends React.Component {
         super(props);
 
         const proto = window.location.protocol.indexOf("https") >= 0 ? "wss" : "ws";
-        this.url = `${proto}://${window.location.host}/api/chat?user=${this.props.user}`;
+        this.url = `${proto}://${window.location.host}/api/chat`;
 
         this.state = {
             msgs: []
@@ -74,10 +74,8 @@ class Chat extends React.Component {
                 this.setState(state => ({msgs: [...state.msgs, msg]}));
                 if (msg.notify) {
                     this.props.notifications.notify({
-                        title: msg.user || msg.text,
+                        title: (msg.user && msg.user.name) || msg.text,
                         body: msg.user ? msg.text : undefined
-                        /*,
-                        icon: "https://d30y9cdsu7xlg0.cloudfront.net/png/84093-200.png"*/
                     });
                 }
 
@@ -94,22 +92,22 @@ class Chat extends React.Component {
     };
 
     render() {
-        const nt = this.props.notifications;
+        const { notifications, user } = this.props;
 
         return <div>
-            <div>Hi, {this.props.user} (<Link to="/changeUser">change name</Link>)</div>
+            <div>Hi, {user.name} (<Link to="/changeUser">change name</Link>)</div>
             <div>
                 <input id="notifications"
-                       checked={nt.enabled}
+                       checked={notifications.enabled}
                        onChange={this.onNotificationChange}
-                       disabled={nt.notSupportedOrAllowed()}
+                       disabled={notifications.notSupportedOrAllowed()}
                        type="checkbox"/>
                 <label htmlFor="notifications">Notifications</label>
-                { nt.notSupportedOrAllowed() && <span> (
-                    {!nt.supported ? "not supported by browser" : "not allowed by user"}
+                { notifications.notSupportedOrAllowed() && <span> (
+                    {!notifications.supported ? "not supported by browser" : "not allowed by user"}
                 )</span> }
             </div>
-            <div>{this.state.msgs.map(msg => <Message key={msg.id} msg={msg}/>)}</div>
+            <div>{this.state.msgs.map(msg => <Message key={msg.id} user={user} msg={msg}/>)}</div>
             <div>
                 <MsgInput onPost={this.onMsgPost}/>
             </div>

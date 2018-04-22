@@ -2,23 +2,34 @@ import React from "react";
 
 import {withCookies} from 'react-cookie';
 import {Redirect} from 'react-router-dom';
+import {withAxios} from "react-axios";
 
 class ChangeUser extends React.Component {
 
     constructor(props) {
         super(props);
+
+        const userJson = props.cookies.get("user");
+        const user = (userJson && userJson.id !== undefined) ? userJson : { id: null, name: "" };
+
         this.state = {
-            user: props.cookies.get("user") || "",
+            user: user,
             submitted: false
         };
     }
 
-    onLoginChange = e => this.setState({ user: e.target.value });
+    onLoginChange = e => {
+        const val = e.target.value;
+        this.setState(state => ({ user: { ...state.user, name: val } }));
+    };
 
     onSubmit = e => {
         e.preventDefault();
-        this.props.cookies.set("user", this.state.user);
-        this.setState({ submitted: true });
+        this.props.axios.post("auth", this.state.user).then(resp => {
+            const authUser = resp.data;
+            this.props.cookies.set("user", authUser);
+            this.setState({ submitted: true });
+        });
     };
 
     render() {
@@ -28,11 +39,11 @@ class ChangeUser extends React.Component {
 
         return <form onSubmit={this.onSubmit}>
             <label htmlFor="user">Nickname</label>
-            <input id="user" type="text" value={this.state.user} onChange={this.onLoginChange}/>
+            <input id="user" type="text" value={this.state.user.name} onChange={this.onLoginChange}/>
             <button type="submit">OK</button>
         </form>;
     }
 
 }
 
-export default withCookies(ChangeUser);
+export default withAxios(withCookies(ChangeUser));

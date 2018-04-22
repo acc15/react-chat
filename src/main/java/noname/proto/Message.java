@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 import lombok.Data;
 
 import java.time.Instant;
+import java.util.UUID;
 
 @Data
 @JsonTypeName("MSG")
@@ -14,9 +15,9 @@ public class Message extends Frame {
         super(FrameType.MSG);
     }
 
-    private long id;
+    private UUID id;
 
-    private String user;
+    private User user;
 
     @JsonFormat(shape = JsonFormat.Shape.NUMBER_INT)
     private Instant time;
