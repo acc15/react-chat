@@ -12,7 +12,7 @@ class Msg extends React.Component {
     componentDidMount() {
         this.timerId = setInterval(() => {
 
-            const live = Math.min(1, 1 - (Date.now() - this.props.msg.time) / 5000);
+            const live = Math.min(1, 1 - (Date.now() - this.props.msg.time) / 60000);
             if (live < 0) {
                 this.props.onRemove(this.props.msg);
                 return;
