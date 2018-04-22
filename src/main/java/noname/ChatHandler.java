@@ -86,7 +86,8 @@ public class ChatHandler extends TextWebSocketHandler {
         User u = parseUserFromCookieOrNull(session);
         if (u == null) {
             try {
-                session.close(new CloseStatus(CloseStatus.NOT_ACCEPTABLE.getCode(), "Connections without 'user' cookie or with invalid 'user' cookie will be rejected"));
+                session.close(new CloseStatus(CloseStatus.NOT_ACCEPTABLE.getCode(),
+                    "Connections without 'user' cookie or with invalid 'user' cookie will be rejected"));
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
