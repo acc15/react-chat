@@ -1,6 +1,5 @@
 import React from 'react';
 
-import './Chat.css';
 import {withCookies} from 'react-cookie';
 import {Link, Redirect} from "react-router-dom";
 import Message from "./Msg";
@@ -63,8 +62,6 @@ class Chat extends React.Component {
         console.log(`Sending frame: ${json}`);
         this.ws.send(json);
     }
-
-    onNotificationChange = e => this.props.notifications.enabled = e.target.checked;
 
     onMsgPost = msg => this.sendMessage({type: "POST", text: msg});
 
@@ -160,7 +157,6 @@ class Chat extends React.Component {
 }
 
 const ChatWithNotifications = withNotifications(Chat);
-
 
 export default withCookies(({cookies}) => {
     const user = cookies.get("user");
