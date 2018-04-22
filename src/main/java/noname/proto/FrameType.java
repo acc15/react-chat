@@ -6,6 +6,8 @@ public enum FrameType {
     MSG,
     NOTIFY,
     PING,
-    PONG
+    PONG,
+
+    JOIN, LEAVE, INIT
 
 }

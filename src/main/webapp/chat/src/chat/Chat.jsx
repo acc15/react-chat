@@ -20,7 +20,8 @@ class Chat extends React.Component {
         this.url = `${proto}://${window.location.host}/api/chat`;
 
         this.state = {
-            msgs: []
+            msgs: [],
+            users: []
         };
     }
 
@@ -70,16 +71,24 @@ class Chat extends React.Component {
         console.log(`Received frame: ${e.data}`);
         const msg = JSON.parse(e.data);
         switch (msg.type) {
+            case "INIT":
+                this.setState({ users: Chat.distinctSortedUsers(msg.users) });
+                break;
+
+            case "JOIN":
+                this.join(msg);
+                break;
+
+            case "LEAVE":
+                this.leave(msg);
+                break;
+
             case "MSG":
                 this.setState(state => ({msgs: [...state.msgs, msg]}));
                 if (msg.notify) {
-                    this.props.notifications.notify({
-                        title: (msg.user && msg.user.name) || msg.text,
-                        body: msg.user ? msg.text : undefined
-                    });
+                    this.notify(msg.user.name, msg.text);
                 }
-
-                setTimeout(() => this.setState(state => ({msgs: state.msgs.filter(m => m.id !== msg.id)})), 60000);
+                this.removeMsgAfterTimeout(msg.id);
                 break;
 
             case "PONG":
@@ -91,12 +100,48 @@ class Chat extends React.Component {
         }
     };
 
+    join(msg) {
+        const text = `${msg.user.name} joined`;
+        this.setState(state => ({
+            users: Chat.distinctSortedUsers([...state.users, msg.user]),
+            msgs: [...state.msgs, {...msg, text: text}] })
+        );
+        this.notify(text);
+        this.removeMsgAfterTimeout(msg.id);
+    }
+
+    leave(msg) {
+        const text = `${msg.user.name} leave`;
+        this.setState(state => ({
+            users: Chat.distinctSortedUsers(state.users.filter(u => u.id !== msg.user.id)),
+            msgs: [...state.msgs, {...msg, text: text}] })
+        );
+        this.notify(text);
+        this.removeMsgAfterTimeout(msg.id);
+    }
+
+    notify(title, body) {
+        this.props.notifications.notify({ title: title, body: body });
+    }
+
+    removeMsgAfterTimeout(id) {
+        setTimeout(() => this.setState(state => ({msgs: state.msgs.filter(m => m.id !== id)})), 60000);
+    }
+
+    static distinctSortedUsers(users) {
+        return Object.values(users.reduce((obj, u) => {
+            obj[u.id] = u;
+            return obj;
+        }, {})).sort((u1, u2) => u1.name.localeCompare(u2.name));
+    }
+
     render() {
         const { notifications, user } = this.props;
 
         return <div>
             <div>Hi, {user.name} (<Link to="/changeUser">change name</Link>)</div>
-            <div>
+            <div className="users">{ this.state.users.map(u => <div>{ u.name }</div>) }</div>
+            <div className="notifications">
                 <input id="notifications"
                        checked={notifications.enabled}
                        onChange={this.onNotificationChange}

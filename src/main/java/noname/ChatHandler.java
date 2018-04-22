@@ -22,6 +22,7 @@ import java.net.URLDecoder;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Component
 public class ChatHandler extends TextWebSocketHandler {
@@ -50,7 +51,7 @@ public class ChatHandler extends TextWebSocketHandler {
                 break;
 
             case POST:
-                broadcast(s -> messageFactory.createMessage(getUser(session), ((Post)frame).getText(), s != session));
+                broadcast(s -> messageFactory.msg(getUser(session), ((Post)frame).getText(), !getUser(s).getId().equals(getUser(session).getId())));
                 break;
         }
     }
@@ -60,8 +61,7 @@ public class ChatHandler extends TextWebSocketHandler {
         logger.info("Connection closed {}. Status: {}", session.getRemoteAddress(), status);
 
         sessions.remove(session);
-
-        broadcast(messageFactory.createNotification(getUser(session).getName() + " leave"));
+        broadcast(messageFactory.leave(getUser(session)));
     }
 
     @Override
@@ -79,8 +79,11 @@ public class ChatHandler extends TextWebSocketHandler {
         }
         session.getAttributes().put("user", user);
 
-        broadcast(messageFactory.createNotification(user.getName() + " joined"));
+        broadcast(messageFactory.join(user));
         sessions.add(session);
+
+        sendFrame(session, messageFactory.init(sessions.stream().map(ChatHandler::getUser).collect(Collectors.toList())));
+
     }
 
     private void broadcast(Function<WebSocketSession, Frame> frameGen) {

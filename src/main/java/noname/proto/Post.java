@@ -7,10 +7,10 @@ import lombok.Data;
 @JsonTypeName("POST")
 public class Post extends Frame {
 
-    private String text;
-
     public Post() {
         super(FrameType.POST);
     }
+
+    private String text;
 
 }
