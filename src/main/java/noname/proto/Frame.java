@@ -8,7 +8,7 @@ import lombok.Data;
 @JsonTypeInfo(property = "type", use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.EXISTING_PROPERTY)
 @JsonSubTypes({
     @JsonSubTypes.Type(Ping.class),
-    @JsonSubTypes.Type(Message.class),
+    @JsonSubTypes.Type(Msg.class),
     @JsonSubTypes.Type(Post.class),
 })
 public abstract class Frame {

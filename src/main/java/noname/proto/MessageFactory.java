@@ -18,8 +18,8 @@ public class MessageFactory {
         return initBaseMsg(new Leave(), id, time, user);
     }
 
-    public Message msg(UUID id, Instant time, User user, String text, boolean notify) {
-        Message m = initBaseMsg(new Message(), id, time, user);
+    public Msg msg(UUID id, Instant time, User user, String text, boolean notify) {
+        Msg m = initBaseMsg(new Msg(), id, time, user);
         m.setText(text);
         m.setNotify(notify);
         return m;
@@ -35,7 +35,7 @@ public class MessageFactory {
         return i;
     }
 
-    private <T extends BaseMessage> T initBaseMsg(T baseMessage, UUID id, Instant time, User user) {
+    private <T extends BaseMsg> T initBaseMsg(T baseMessage, UUID id, Instant time, User user) {
         baseMessage.setId(id);
         baseMessage.setTime(time);
         baseMessage.setUser(user);

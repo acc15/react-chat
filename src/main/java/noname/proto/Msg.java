@@ -5,9 +5,9 @@ import lombok.Data;
 
 @Data
 @JsonTypeName("MSG")
-public class Message extends BaseMessage {
+public class Msg extends BaseMsg {
 
-    public Message() {
+    public Msg() {
         super(FrameType.MSG);
     }
 

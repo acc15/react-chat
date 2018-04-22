@@ -1,6 +1,7 @@
 package noname;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import noname.concurrent.LockStripe;
 import noname.proto.Frame;
 import noname.proto.MessageFactory;
 import noname.proto.Pong;
@@ -32,8 +33,11 @@ public class ChatHandler extends TextWebSocketHandler {
     private static final Logger logger = LoggerFactory.getLogger(ChatHandler.class);
 
     private final List<WebSocketSession> sessions = new CopyOnWriteArrayList<>();
+
     private final ObjectMapper objectMapper;
     private final MessageFactory messageFactory;
+
+    private final LockStripe<UUID> userLocks = new LockStripe<>(128);
 
     @Autowired
     public ChatHandler(ObjectMapper objectMapper, MessageFactory messageFactory) {
@@ -65,11 +69,13 @@ public class ChatHandler extends TextWebSocketHandler {
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) {
         logger.info("Connection closed {}. Status: {}", session.getRemoteAddress(), status);
 
-        sessions.remove(session);
-
         User u = getUser(session);
-        if (getUserSessions(u.getId()).isEmpty()) {
-            broadcast(messageFactory.leave(UUID.randomUUID(), Instant.now(), getUser(session)));
+
+        try (LockStripe.AutoCloseableLock ignored = userLocks.lockFor(u.getId())) {
+            sessions.remove(session);
+            if (noMoreSessions(u.getId())) {
+                broadcast(messageFactory.leave(UUID.randomUUID(), Instant.now(), getUser(session)));
+            }
         }
     }
 
@@ -77,8 +83,8 @@ public class ChatHandler extends TextWebSocketHandler {
     public void afterConnectionEstablished(WebSocketSession session) {
         logger.info("Connection established {}", session.getRemoteAddress());
 
-        User user = parseUserFromCookieOrNull(session);
-        if (user == null) {
+        User u = parseUserFromCookieOrNull(session);
+        if (u == null) {
             try {
                 session.close(new CloseStatus(CloseStatus.NOT_ACCEPTABLE.getCode(), "Connections without 'user' cookie or with invalid 'user' cookie will be rejected"));
             } catch (IOException e) {
@@ -86,19 +92,25 @@ public class ChatHandler extends TextWebSocketHandler {
             }
             return;
         }
-        session.getAttributes().put("user", user);
+        session.getAttributes().put("user", u);
 
-        if (getUserSessions(user.getId()).isEmpty()) {
-            broadcast(messageFactory.join(UUID.randomUUID(), Instant.now(), user));
+        try (LockStripe.AutoCloseableLock ignored = userLocks.lockFor(u.getId())) {
+            if (noMoreSessions(u.getId())) {
+                broadcast(messageFactory.join(UUID.randomUUID(), Instant.now(), u));
+            }
+            sessions.add(session);
         }
 
-        sessions.add(session);
         sendFrame(session, messageFactory.init(sessions.stream().map(ChatHandler::getUser).collect(Collectors.toSet())));
 
     }
 
     private List<WebSocketSession> getUserSessions(UUID id) {
         return sessions.stream().filter(s -> getUser(s).getId().equals(id)).collect(Collectors.toList());
+    }
+
+    private boolean noMoreSessions(UUID userId) {
+        return getUserSessions(userId).isEmpty();
     }
 
     private void broadcast(Function<WebSocketSession, Frame> frameGen) {

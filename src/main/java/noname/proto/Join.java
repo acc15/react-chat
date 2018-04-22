@@ -5,7 +5,7 @@ import lombok.Data;
 
 @Data
 @JsonTypeName("JOIN")
-public class Join extends BaseMessage {
+public class Join extends BaseMsg {
     public Join() {
         super(FrameType.JOIN);
     }

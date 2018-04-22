@@ -7,9 +7,9 @@ import java.time.Instant;
 import java.util.UUID;
 
 @Data
-public abstract class BaseMessage extends Frame {
+public abstract class BaseMsg extends Frame {
 
-    protected BaseMessage(FrameType type) {
+    protected BaseMsg(FrameType type) {
         super(type);
     }
 
