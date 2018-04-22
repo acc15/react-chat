@@ -103,7 +103,7 @@ class Chat extends React.Component {
     join(msg) {
         const text = `${msg.user.name} joined`;
         this.setState(state => ({
-            users: Chat.distinctSortedUsers([...state.users, msg.user]),
+            users: [...state.users, msg.user],
             msgs: [...state.msgs, {...msg, text: text}] })
         );
         this.notify(text);
@@ -113,7 +113,7 @@ class Chat extends React.Component {
     leave(msg) {
         const text = `${msg.user.name} leave`;
         this.setState(state => ({
-            users: Chat.distinctSortedUsers(state.users.filter(u => u.id !== msg.user.id)),
+            users: state.users.filter(u => u.id !== msg.user.id),
             msgs: [...state.msgs, {...msg, text: text}] })
         );
         this.notify(text);

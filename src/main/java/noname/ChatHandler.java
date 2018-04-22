@@ -20,6 +20,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.HttpCookie;
 import java.net.URLDecoder;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -61,7 +62,11 @@ public class ChatHandler extends TextWebSocketHandler {
         logger.info("Connection closed {}. Status: {}", session.getRemoteAddress(), status);
 
         sessions.remove(session);
-        broadcast(messageFactory.leave(getUser(session)));
+
+        User u = getUser(session);
+        if (getUserSessions(u.getId()).isEmpty()) {
+            broadcast(messageFactory.leave(getUser(session)));
+        }
     }
 
     @Override
@@ -79,11 +84,17 @@ public class ChatHandler extends TextWebSocketHandler {
         }
         session.getAttributes().put("user", user);
 
-        broadcast(messageFactory.join(user));
+        if (getUserSessions(user.getId()).isEmpty()) {
+            broadcast(messageFactory.join(user));
+        }
+
         sessions.add(session);
+        sendFrame(session, messageFactory.init(sessions.stream().map(ChatHandler::getUser).collect(Collectors.toSet())));
 
-        sendFrame(session, messageFactory.init(sessions.stream().map(ChatHandler::getUser).collect(Collectors.toList())));
+    }
 
+    private List<WebSocketSession> getUserSessions(UUID id) {
+        return sessions.stream().filter(s -> getUser(s).getId().equals(id)).collect(Collectors.toList());
     }
 
     private void broadcast(Function<WebSocketSession, Frame> frameGen) {
