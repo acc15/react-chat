@@ -6,68 +6,53 @@ const withNotifications = (Delegate) => class NotificationsHOC extends React.Com
     constructor(props) {
         super(props);
 
-        this.supported = Boolean(window.Notification);
         this.state = {
-            enabled: true,
-            allowed: this.isNotificationsAllowed()
+            enabled: true
         };
 
         const self = this;
         class NotificationsAPI {
 
-            get supported() {
-                return self.supported;
+            isSupported() {
+                return Boolean(window.Notification);
             }
 
-            get enabled() {
+            isAllowed() {
+                return this.isSupported() && Notification.permission === "granted";
+            }
+
+            isEnabled() {
                 return self.state.enabled;
             }
 
-            set enabled(val) {
+            setEnabled(val) {
                 self.setState({ enabled: val });
             }
 
-            get allowed() {
-                return self.state.allowed;
-            }
-
-            notSupportedOrAllowed() {
-                return !this.supported || !this.allowed;
-            }
-
-            requestPermissionIfDefault() {
-                if (!self.supported) {
+            notify(opts) {
+                if (!this.isSupported()) {
                     return false;
                 }
-                switch (window.Notification.permission) {
+                switch (Notification.permission) {
                     case "default":
-                        window.Notification.requestPermission();
+                        Notification.requestPermission();
                         return false;
 
                     case "denied":
                         return false;
 
                     case "granted":
-                        return true;
+                        break;
 
                     default:
                         console.log(`Unknown Notification.permission === ${window.Notification.permission}`);
-                        break;
+                        return false;
                 }
-            }
-
-
-            notify(opts) {
-                if (!this.supported) {
-                    return;
-                }
-                if (!this.requestPermissionIfDefault()) {
-                    return;
-                }
-                if (!this.enabled) {
-                    return;
+                if (!this.isEnabled()) {
+                    return false;
                 }
                 new Notification(opts.title, opts);
+                return true;
             }
         }
 
@@ -75,17 +60,10 @@ const withNotifications = (Delegate) => class NotificationsHOC extends React.Com
 
     }
 
-    isNotificationsAllowed() {
-        return this.supported && window.Notification.permission === "granted";
-    }
-
     componentDidMount() {
-        this.notifications.requestPermissionIfDefault();
-        this.permissionCheckerId = setInterval(() => this.setState({ allowed: this.isNotificationsAllowed() }), 1000);
-    }
-
-    componentWillUnmount() {
-        clearInterval(this.permissionCheckerId);
+        if (Notification.permission === "default") {
+            Notification.requestPermission();
+        }
     }
 
     render() {

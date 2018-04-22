@@ -5,6 +5,7 @@ import {withCookies} from 'react-cookie';
 import {Link, Redirect} from "react-router-dom";
 import Message from "./Msg";
 import MsgInput from "./MsgInput";
+import NotificationSwitch from "./NotificationSwitch";
 import withNotifications from "./Notifications";
 
 function logClose(status) {
@@ -123,17 +124,7 @@ class Chat extends React.Component {
         return <div>
             <div>Hi, {user.name} (<Link to="/changeUser">change name</Link>)</div>
             <div className="users">{ this.state.users.map(u => <div>{ u.name }</div>) }</div>
-            <div className="notifications">
-                <input id="notifications"
-                       checked={notifications.enabled}
-                       onChange={this.onNotificationChange}
-                       disabled={notifications.notSupportedOrAllowed()}
-                       type="checkbox"/>
-                <label htmlFor="notifications">Notifications</label>
-                { notifications.notSupportedOrAllowed() && <span> (
-                    {!notifications.supported ? "not supported by browser" : "not allowed by user"}
-                )</span> }
-            </div>
+            <NotificationSwitch notifications={notifications}/>
             <div>{this.state.msgs.map(msg => <Message key={msg.id} user={user} msg={msg} onRemove={this.onMsgRemove}/>)}</div>
             <div>
                 <MsgInput onPost={this.onMsgPost}/>
