@@ -102,7 +102,6 @@ class Chat extends React.Component {
             msgs: [...state.msgs, {id: msg.id, time: msg.time, text: text}] })
         );
         this.notify(text);
-        this.removeMsgAfterTimeout(msg.id);
     }
 
     msg(msg) {
@@ -110,7 +109,6 @@ class Chat extends React.Component {
         if (msg.notify) {
             this.notify(msg.user.name, msg.text);
         }
-        this.removeMsgAfterTimeout(msg.id);
     }
 
 
@@ -118,11 +116,7 @@ class Chat extends React.Component {
         this.props.notifications.notify({ title: title, body: body });
     }
 
-    onMsgRemove = id => this.setState(state => ({msgs: state.msgs.filter(m => m.id !== id)}));
-
-    removeMsgAfterTimeout(id) {
-        setTimeout(() => this.onMsgRemove(id), 60000);
-    }
+    onMsgRemove = msg => this.setState(state => ({msgs: state.msgs.filter(m => m.id !== msg.id)}));
 
     render() {
         const { notifications, user } = this.props;
