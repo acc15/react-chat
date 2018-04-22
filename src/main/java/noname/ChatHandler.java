@@ -1,7 +1,6 @@
 package noname;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import noname.concurrent.LockStripe;
 import noname.proto.Frame;
 import noname.proto.MessageFactory;
 import noname.proto.Pong;
@@ -24,6 +23,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -37,7 +37,8 @@ public class ChatHandler extends TextWebSocketHandler {
     private final ObjectMapper objectMapper;
     private final MessageFactory messageFactory;
 
-    private final LockStripe<UUID> userLocks = new LockStripe<>(128);
+    private final ReentrantLock sessionsLock = new ReentrantLock();
+    //private final LockStripe<UUID> userLocks = new LockStripe<>(128);
 
     @Autowired
     public ChatHandler(ObjectMapper objectMapper, MessageFactory messageFactory) {
@@ -71,11 +72,14 @@ public class ChatHandler extends TextWebSocketHandler {
 
         User u = getUser(session);
 
-        try (LockStripe.AutoCloseableLock ignored = userLocks.lockFor(u.getId())) {
+        try {
+            sessionsLock.lock();
             sessions.remove(session);
             if (noMoreSessions(u.getId())) {
                 broadcast(messageFactory.leave(UUID.randomUUID(), Instant.now(), getUser(session)));
             }
+        } finally {
+            sessionsLock.unlock();
         }
     }
 
@@ -95,23 +99,23 @@ public class ChatHandler extends TextWebSocketHandler {
         }
         session.getAttributes().put("user", u);
 
-        try (LockStripe.AutoCloseableLock ignored = userLocks.lockFor(u.getId())) {
+        try {
+            sessionsLock.lock();
+
             if (noMoreSessions(u.getId())) {
                 broadcast(messageFactory.join(UUID.randomUUID(), Instant.now(), u));
             }
             sessions.add(session);
+            sendFrame(session, messageFactory.init(sessions.stream().map(ChatHandler::getUser).collect(Collectors.toSet())));
+
+        } finally {
+            sessionsLock.unlock();
         }
 
-        sendFrame(session, messageFactory.init(sessions.stream().map(ChatHandler::getUser).collect(Collectors.toSet())));
-
-    }
-
-    private List<WebSocketSession> getUserSessions(UUID id) {
-        return sessions.stream().filter(s -> getUser(s).getId().equals(id)).collect(Collectors.toList());
     }
 
     private boolean noMoreSessions(UUID userId) {
-        return getUserSessions(userId).isEmpty();
+        return sessions.stream().filter(s -> getUser(s).getId().equals(userId)).count() == 0;
     }
 
     private void broadcast(Function<WebSocketSession, Frame> frameGen) {

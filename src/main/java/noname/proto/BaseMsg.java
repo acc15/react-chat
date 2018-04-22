@@ -2,11 +2,13 @@ package noname.proto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.time.Instant;
 import java.util.UUID;
 
 @Data
+@EqualsAndHashCode(callSuper = true)
 public abstract class BaseMsg extends Frame {
 
     protected BaseMsg(FrameType type) {
