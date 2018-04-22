@@ -1,8 +1,7 @@
 import React from 'react';
 import App from './App';
-import { CookiesProvider } from 'react-cookie';
-import { AxiosProvider } from 'react-axios';
-import { BrowserRouter } from 'react-router-dom';
+import {CookiesProvider} from 'react-cookie';
+import {AxiosProvider} from 'react-axios';
 import axios from 'axios';
 
 class Root extends React.Component {
@@ -18,9 +17,7 @@ class Root extends React.Component {
     render() {
         return <AxiosProvider instance={this.axios}>
             <CookiesProvider>
-                <BrowserRouter>
-                    <App/>
-                </BrowserRouter>
+                <App/>
             </CookiesProvider>
         </AxiosProvider>;
     }

@@ -1,11 +1,20 @@
-import {Route, Switch} from 'react-router-dom';
+import {Route, Switch, BrowserRouter} from 'react-router-dom';
 
 import React from "react";
 import Chat from "./chat/Chat";
 import ChangeUser from "./ChangeUser";
 
-export default () => <Switch>
-        <Route path="/changeUser" component={ChangeUser}/>
-        <Route path="/" component={Chat}/>
-    </Switch>;
+import 'bootstrap/dist/css/bootstrap.min.css';
+
+export default () => <BrowserRouter>
+    <div className="container-fluid">
+        <div className="header-panel">
+
+        </div>
+        <Switch>
+            <Route path="/changeUser" component={ChangeUser}/>
+            <Route path="/" component={Chat}/>
+        </Switch>
+    </div>
+</BrowserRouter>;
 
