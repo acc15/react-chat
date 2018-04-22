@@ -111,7 +111,6 @@ class Chat extends React.Component {
         }
     }
 
-
     notify(title, body) {
         this.props.notifications.notify({ title: title, body: body });
     }
