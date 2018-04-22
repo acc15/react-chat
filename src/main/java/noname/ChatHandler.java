@@ -38,7 +38,6 @@ public class ChatHandler extends TextWebSocketHandler {
     private final MessageFactory messageFactory;
 
     private final ReentrantLock sessionsLock = new ReentrantLock();
-    //private final LockStripe<UUID> userLocks = new LockStripe<>(128);
 
     @Autowired
     public ChatHandler(ObjectMapper objectMapper, MessageFactory messageFactory) {
