@@ -29,8 +29,8 @@ class Msg extends React.Component {
 
     render() {
         const { msg, user } = this.props;
-        return <div className="msg" style={{opacity: this.state.live}}>
-            <span className="time">{moment(msg.time).format('DD.MM.YYYY HH:mm:ss.SSS')}</span> { msg.user && <span className={classnames("user", user.id === msg.user.id && "me")}>{msg.user.name}</span> } {msg.text}
+        return <div className={classnames("msg", "msg-" + msg.type)} style={{opacity: this.state.live}}>
+            <span className="time">{moment(msg.time).format('DD.MM.YYYY HH:mm:ss.SSS')}</span> { msg.user && <span className={classnames("user", user.id === msg.user.id && "me")}>{msg.user.name}</span> } <span className="text">{msg.text}</span>
         </div>;
     }
 

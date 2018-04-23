@@ -20,12 +20,13 @@ class NotificationSwitch extends React.Component {
 
     render() {
         const notifications = this.props.notifications;
-        return <div className="nt-switch">
-            <label>
+        return <div className="form-check">
+            <label className="form-check-label">
                 <input checked={notifications.isEnabled()}
                        onChange={e => notifications.setEnabled(e.target.checked)}
                        disabled={!notifications.isAllowed()}
-                       type="checkbox"/>
+                       type="checkbox"
+                       className="form-check-input" />
                 Notifications
             </label> {!notifications.isSupported() ?
             <span className="badge badge-warning">not supported by browser</span> :

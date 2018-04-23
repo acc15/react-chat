@@ -100,7 +100,7 @@ class Chat extends React.Component {
     userChange(msg, text, modifier) {
         this.setState(state => ({
             users: modifier(state.users),
-            msgs: [...state.msgs, {id: msg.id, time: msg.time, text: text}] })
+            msgs: [...state.msgs, {type: msg.type, id: msg.id, time: msg.time, text: text}] })
         );
         this.notify(text);
     }
