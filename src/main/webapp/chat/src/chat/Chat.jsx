@@ -123,21 +123,23 @@ class Chat extends React.Component {
                 <div className="col">Hi, {user.name} (<Link to="/changeUser">change name</Link>)</div>
             </div>
             <div className="row">
-                <div className="col"><NotificationSwitch notifications={notifications}/></div>
+                <div className="col">
+                    <NotificationSwitch notifications={notifications}/>
+                </div>
             </div>
-            <div className="row mb-3">
-                <div className="col-10">
-                    <div className="card">
+            <div className="row">
+                <div className="col-sm-8">
+                    <div className="card mb-3">
                         <div className="card-header">
                             Messages
                         </div>
                         <div className="card-body">
-                            {this.state.msgs.map(msg => <Message key={msg.id} user={user} msg={msg} onRemove={this.onMsgRemove}/>)}
+                            { this.state.msgs.map(msg => <Message key={msg.id} user={user} msg={msg} onRemove={this.onMsgRemove}/>) }
                         </div>
                     </div>
                 </div>
-                <div className="col">
-                    <div className="card">
+                <div className="col-sm">
+                    <div className="card mb-3">
                         <div className="card-header">
                             Users
                         </div>
