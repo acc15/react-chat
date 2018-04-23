@@ -7,3 +7,11 @@ body {
 html, body, #root {
     height: 100%;
 }
+
+.msg-input {
+    position: absolute;
+    bottom: 0;
+    height: 60px;
+    line-height: 60px;
+    width: 100%;
+}

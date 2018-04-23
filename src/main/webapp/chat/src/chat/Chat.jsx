@@ -118,40 +118,45 @@ class Chat extends React.Component {
     render() {
         const { notifications, user } = this.props;
 
-        return <div>
-            <div className="row">
-                <div className="col">Hi, {user.name} (<Link to="/changeUser">change name</Link>)</div>
-            </div>
-            <div className="row">
-                <div className="col">
-                    <NotificationSwitch notifications={notifications}/>
+        return <div className="h-100">
+            <div className="container-fluid h-100 d-flex flex-column">
+
+                <div className="row">
+                    <div className="col">
+                        Hi, {user.name} (<Link to="/changeUser">change name</Link>)
+                    </div>
                 </div>
-            </div>
-            <div className="row">
-                <div className="col-sm-8 order-last order-sm-first">
-                    <div className="card mb-3">
-                        <div className="card-header">
-                            Messages
+                <div className="row">
+                    <div className="col">
+                        <NotificationSwitch notifications={notifications}/>
+                    </div>
+                </div>
+                <div className="row flex-fill">
+                    <div className="col-sm-8 order-last order-sm-first mb-3">
+                        <div className="card h-100">
+                            <div className="card-header">
+                                Messages
+                            </div>
+                            <div className="card-body">
+                                { this.state.msgs.map(msg => <Message key={msg.id} user={user} msg={msg} onRemove={this.onMsgRemove}/>) }
+                            </div>
                         </div>
-                        <div className="card-body">
-                            { this.state.msgs.map(msg => <Message key={msg.id} user={user} msg={msg} onRemove={this.onMsgRemove}/>) }
+                    </div>
+                    <div className="col-sm order-first order-sm-last mb-3">
+                        <div className="card h-100">
+                            <div className="card-header">
+                                Users
+                            </div>
+                            <div className="card-body">
+                                { this.state.users.map(u => <div>{ u.name }</div>) }
+                            </div>
                         </div>
                     </div>
                 </div>
-                <div className="col-sm order-first order-sm-last">
-                    <div className="card mb-3">
-                        <div className="card-header">
-                            Users
-                        </div>
-                        <div className="card-body">
-                            { this.state.users.map(u => <div>{ u.name }</div>) }
-                        </div>
+                <div className="row">
+                    <div className="col">
+                        <MsgInput onPost={this.onMsgPost}/>
                     </div>
-                </div>
-            </div>
-            <div className="row">
-                <div className="col">
-                    <MsgInput onPost={this.onMsgPost}/>
                 </div>
             </div>
         </div>;
