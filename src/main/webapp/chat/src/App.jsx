@@ -7,9 +7,11 @@ import ChangeUser from "./ChangeUser";
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 export default () => <BrowserRouter>
+    <div className="container-fluid h-100">
         <Switch>
             <Route path="/changeUser" component={ChangeUser}/>
             <Route path="/" component={Chat}/>
         </Switch>
+    </div>
 </BrowserRouter>;
 
