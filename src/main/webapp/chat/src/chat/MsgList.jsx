@@ -19,7 +19,7 @@ class MsgList extends React.Component {
         return <div className="card h-100">
             <div className="card-header">Messages</div>
             <div className="card-body overflow-y-auto" ref={this.msgPanel}>
-                { this.props.msgs.map(msg => <Msg key={msg.id} user={this.props.user} msg={msg} onRemove={this.onMsgRemove}/>) }
+                { this.props.msgs.map(msg => <Msg key={msg.id} user={this.props.user} msg={msg} onRemove={this.props.onMsgRemove}/>) }
             </div>
         </div>;
     }

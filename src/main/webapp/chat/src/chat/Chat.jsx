@@ -126,7 +126,7 @@ class Chat extends React.Component {
             <div><NotificationSwitch notifications={notifications}/></div>
             <div className="row flex-fill">
                 <div className="col-sm-9 order-last order-sm-first mb-3">
-                    <MsgList msgs={this.state.msgs} user={user}/>
+                    <MsgList msgs={this.state.msgs} user={user} onRemove={this.onMsgRemove}/>
                 </div>
                 <div className="col-sm order-first order-sm-last mb-3">
                     <UserList users={this.state.users}/>
