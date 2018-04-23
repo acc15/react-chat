@@ -128,7 +128,7 @@ class Chat extends React.Component {
                 </div>
             </div>
             <div className="row">
-                <div className="col-sm-8">
+                <div className="col-sm-8 order-last order-sm-first">
                     <div className="card mb-3">
                         <div className="card-header">
                             Messages
@@ -138,7 +138,7 @@ class Chat extends React.Component {
                         </div>
                     </div>
                 </div>
-                <div className="col-sm">
+                <div className="col-sm order-first order-sm-last">
                     <div className="card mb-3">
                         <div className="card-header">
                             Users
