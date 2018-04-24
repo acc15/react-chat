@@ -31,11 +31,7 @@ class Chat extends React.Component {
     }
 
     componentWillUnmount() {
-        if (this.pingIntervalId) {
-            clearInterval(this.pingIntervalId);
-        }
-        this.ws.onclose = logClose;
-        this.ws.close();
+        this.ws.close(4000, "leave");
     }
 
     connectWebSocket() {
@@ -47,10 +43,14 @@ class Chat extends React.Component {
         };
         this.ws.onclose = e => {
             logClose(e);
+            clearInterval(this.pingIntervalId);
+            if (e.code !== 4000) {
+                return;
+            }
             setTimeout(() => {
                 console.log("Reconnecting...");
                 this.connectWebSocket();
-            }, 1000)
+            }, 1000);
         };
     }
 
