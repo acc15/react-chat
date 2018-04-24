@@ -39,12 +39,12 @@ class Chat extends React.Component {
         this.ws.onmessage = this.onMsgRecv;
         this.ws.onopen = () => {
             console.log("Connection opened...");
-            this.pingIntervalId = setInterval(() => this.sendPing(), 120000);
+            this.pingIntervalId = setInterval(() => this.sendPing(), 20000);
         };
         this.ws.onclose = e => {
             logClose(e);
             clearInterval(this.pingIntervalId);
-            if (e.code !== 4000) {
+            if (e.code === 4000) {
                 return;
             }
             setTimeout(() => {
