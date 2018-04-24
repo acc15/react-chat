@@ -27,10 +27,21 @@ class Msg extends React.Component {
         clearInterval(this.timerId);
     }
 
+    renderText(text) {
+        return text.split("").map((c, i) => c === "\n" ? <br key={i}/> : c);
+    }
+
     render() {
         const { msg, user } = this.props;
         return <div className={classnames("msg", "msg-" + msg.type)} style={{opacity: this.state.live}}>
-            <span className="time">{moment(msg.time).format('DD.MM.YYYY HH:mm:ss.SSS')}</span> { msg.user && <span className={classnames("user", user.id === msg.user.id && "me")}>{msg.user.name}</span> } <span className="text">{msg.text}</span>
+            <div className="row">
+                <div className="col-2">
+                    <span className="time">{moment(msg.time).format('DD.MM.YYYY HH:mm:ss.SSS')}</span> { msg.user && <span className={classnames("user", user.id === msg.user.id && "me")}>{msg.user.name}</span> }
+                </div>
+                <div className="col">
+                    <span className="text">{this.renderText(msg.text)}</span>
+                </div>
+            </div>
         </div>;
     }
 
