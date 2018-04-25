@@ -37,10 +37,14 @@ class ChangeUser extends React.Component {
             return <Redirect to="/"/>
         }
 
-        return <form onSubmit={this.onSubmit}>
+        return <form onSubmit={this.onSubmit} className="form-inline">
             <label htmlFor="user">Nickname</label>
-            <input id="user" type="text" value={this.state.user.name} onChange={this.onLoginChange}/>
-            <button type="submit">OK</button>
+            <div className="input-group ml-1">
+                <input id="user" type="text" className="form-control" value={this.state.user.name} onChange={this.onLoginChange}/>
+                <span className="input-group-btn">
+                    <button type="submit" className="btn btn-primary">OK</button>
+                </span>
+            </div>
         </form>;
     }
 
