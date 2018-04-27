@@ -121,18 +121,20 @@ class Chat extends React.Component {
     render() {
         const { notifications, user } = this.props;
 
-        return <div className="d-flex w-100 h-100 flex-column">
-            <div>Hi, {user.name} (<Link to="/changeUser">change name</Link>)</div>
-            <div><NotificationSwitch notifications={notifications}/></div>
-            <div className="row flex-fill">
-                <div className="col-sm-9 order-last order-sm-first mb-3">
-                    <MsgList msgs={this.state.msgs} user={user} onRemove={this.onMsgRemove}/>
-                </div>
-                <div className="col-sm order-first order-sm-last mb-3">
-                    <UserList users={this.state.users}/>
+        return <div className="d-flex flex-column flex-grow-1">
+            <div className="d-flex flex-column flex-grow-1">
+                <div>Hi, {user.name} (<Link to="/changeUser">change name</Link>)</div>
+                <div><NotificationSwitch notifications={notifications}/></div>
+                <div className="row flex-grow-1">
+                    <div className="col-sm-9 order-last order-sm-first mb-3">
+                        <MsgList msgs={this.state.msgs} user={user} onRemove={this.onMsgRemove}/>
+                    </div>
+                    <div className="col-sm order-first order-sm-last mb-3">
+                        <UserList users={this.state.users}/>
+                    </div>
                 </div>
             </div>
-            <div>
+            <div className="flex-shrink-0">
                 <MsgInput onPost={this.onMsgPost}/>
             </div>
         </div>;
